@@ -91,10 +91,10 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
     @logger.debug("init placeholder for #{since_table}_#{mongo_collection_name}")
     since = sqlitedb[SINCE_TABLE]
     mongo_collection = mongodb.collection(mongo_collection_name)
-    
+
     first_entry = mongo_collection.find({}).sort(since_column => 1).limit(1).first
     first_entry_id = ''
-    if since_type == 'id' 
+    if since_type == 'id'
       first_entry_id = first_entry[since_column].to_s
     else
       first_entry_id = first_entry[since_column].to_i
@@ -149,7 +149,7 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
     # db.events_20150320.find().limit(1).sort({ts:1})
 
     av = {}
-    if last_id_object != '' 
+    if last_id_object != ''
       av = {since_column => {:$gt => last_id_object}}
     end
 
@@ -306,6 +306,8 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
                   else
                     event[k.to_s] = v
                   end
+                elsif v.is_a? Hash
+                  event[k.to_s] = v
                 else
                   event[k.to_s] = v unless k.to_s == "_id" || k.to_s == "tags"
                   if (k.to_s == "tags") && (v.is_a? Array)
@@ -350,6 +352,8 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
                     event[k] = v.abs
                   elsif v.is_a? Array
                     event[k] = v
+                  elsif v.is_a? Hash
+                    event[k] = v
                   elsif v == "NaN"
                     event[k] = Float::NAN
                   else
@@ -361,7 +365,7 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
             queue << event
 
             since_id = doc[since_column]
-            if since_type == 'id' 
+            if since_type == 'id'
               since_id = doc[since_column].to_s
             elsif since_type == 'time'
               since_id = doc[since_column].to_i
