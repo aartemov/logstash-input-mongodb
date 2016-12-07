@@ -348,6 +348,10 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
               end
             elsif @parse_method == 'simple'
               doc.each do |k, v|
+                  if k == '_id'
+                    event["mongo_id"] = doc['_id'].to_s
+                    next
+                  end
                   if v.is_a? Numeric
                     event[k] = v.abs
                   elsif v.is_a? Array
