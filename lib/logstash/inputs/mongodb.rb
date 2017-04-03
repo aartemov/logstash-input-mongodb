@@ -354,13 +354,15 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
                   end
                   if k.include? "@"
                     next
-                  end 
+                  end
                   if v.is_a? Numeric
                     event[k] = v.abs
                   elsif v.is_a? Array
                     event[k] = v
                   elsif v.is_a? Hash
                     event[k] = v
+                  elsif v.is_a? Time
+                    event[k] = v.iso8601
                   elsif v == "NaN"
                     event[k] = Float::NAN
                   else
